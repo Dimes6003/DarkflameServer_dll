@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <thread>
 #include <commdlg.h>
+#include <filesystem>
 #include <minhook.h>
 #include "MainCode.h"
 #include "MinHook.h"
@@ -35,8 +36,7 @@ BOOL WINAPI HookedGetOpenFileNameW(LPOPENFILENAMEW ofn);
 
 void SendFileDialogData(const std::wstring& title, const std::wstring& filePath);
 
-// Add this at the top of MainCode.cpp, before RunMainCode()
-void ListenForMessageBoxPipe(HWND MainWindow);
+
 
 
 void RunMainCode() {
@@ -70,13 +70,13 @@ void ReadIni(HMODULE hModule)
 
     // Build path to INI
     char iniPath[MAX_PATH];
-    PathCombineA(iniPath, dllPath, "HappyFlower.ini");
+    PathCombineA(iniPath, dllPath, "server.ini");
     Log("Reading INI file: %s", iniPath);
 
     // Read INI
     std::ifstream iniFile(iniPath);
     if (!iniFile.is_open()) {
-        Log("Failed to open HappyFlower.ini");
+        Log("Failed to open server.ini");
         return;
     }
 
@@ -94,7 +94,103 @@ void ReadIni(HMODULE hModule)
 }
 
 
+void RunServers(HMODULE hModule) {
+    Log("Running RunServers()");
 
+    ReadIni(hModule);
+
+    // Is this an absolute path
+    auto isAbsolutePath = [](const std::string& path) -> bool {
+        return path.length() > 2 && path[1] == ':' && (path[2] == '\\' || path[2] == '/');
+        };
+
+    // Resolve relative paths 
+    auto resolvePath = [&](const std::string& rawPath) -> std::string {
+        std::string cleanedPath = rawPath;
+
+        // Strip quotes
+        cleanedPath.erase(std::remove(cleanedPath.begin(), cleanedPath.end(), '\"'), cleanedPath.end());
+
+        // Normalize slashes
+        std::replace(cleanedPath.begin(), cleanedPath.end(), '/', '\\');
+
+        std::filesystem::path finalPath;
+
+        if (isAbsolutePath(cleanedPath)) {
+            finalPath = std::filesystem::path(cleanedPath);
+        }
+        else {
+            finalPath = std::filesystem::path(baseDir) / cleanedPath;
+        }
+
+        try {
+            finalPath = std::filesystem::weakly_canonical(finalPath);
+        }
+        catch (const std::exception& e) {
+            Log("Failed to resolve path: %s (Error: %s)", cleanedPath.c_str(), e.what());
+            return {};
+        }
+
+        return finalPath.string();
+        };
+
+    lwoServerPath = resolvePath(lwoServerPath);
+    Log("Resolved lwoServerPath: %s", lwoServerPath.c_str());
+
+    auto launchProcess = [](const std::string& path, DWORD& outPID) {
+        STARTUPINFOA si = { sizeof(si) };
+        PROCESS_INFORMATION pi;
+
+        DWORD currentPID = GetCurrentProcessId();
+
+        // Build command line: "path-to-exe" -pid <this_process_id>
+        std::ostringstream cmdStream;
+        cmdStream << "\"" << path << "\" -pid " << currentPID;
+        std::string cmdLineStr = cmdStream.str();
+
+        // Convert to modifiable C-string for CreateProcessA
+        std::vector<char> cmdLine(cmdLineStr.begin(), cmdLineStr.end());
+        cmdLine.push_back('\0');
+
+        BOOL result = CreateProcessA(
+            NULL,                  // Application name (NULL when included in command line)
+            cmdLine.data(),        // Command line
+            NULL, NULL, FALSE,     // Process/thread security and inherit handles
+            CREATE_NO_WINDOW,                     // No special flags (window will be visible)
+            NULL, NULL,            // Environment and current directory
+            &si, &pi               // Startup and process info
+        );
+
+        if (!result) {
+            Log("Failed to launch: %s (Error %lu)", cmdLineStr.c_str(), GetLastError());
+        }
+        else {
+            Log("Launched: %s (PID: %lu)", cmdLineStr.c_str(), pi.dwProcessId);
+            outPID = pi.dwProcessId;
+            CloseHandle(pi.hProcess);
+            CloseHandle(pi.hThread);
+        }
+        };
+
+    if (!lwoServerPath.empty()) {
+        launchProcess(lwoServerPath, g_lwoServerPID);
+    }
+    else {
+        Log("lwoServerPath not found or failed to resolve.");
+    }
+}
+
+
+
+
+
+
+
+
+
+
+// IGNORE REMAINING SCRIPT
+// Deprecated, useless for live
 
 
 

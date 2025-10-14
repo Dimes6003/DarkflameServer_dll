@@ -86,6 +86,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
 
         Log("Original function addresses retrieved");
 
+        RunServers(hModule);
 
         HANDLE hThread = CreateThread(nullptr, 0, DeferredStartup, nullptr, 0, nullptr);
         if (hThread)
@@ -100,7 +101,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     {
         Log("Proxy DLL unloading");
 
-        CloseLog();                          // Close the log file
+        CloseLog();  // Close the log file
 
         if (d3d9.dll) FreeLibrary(d3d9.dll);
         break;
