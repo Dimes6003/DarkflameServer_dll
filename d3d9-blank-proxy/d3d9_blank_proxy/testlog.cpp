@@ -1,4 +1,5 @@
 #include "testlog.h"
+#include "MainCode.h"
 #include <cstdio>
 #include <cstdarg>
 #include <windows.h>
@@ -7,10 +8,10 @@ extern "C" IMAGE_DOS_HEADER __ImageBase;
 
 static FILE* logFile = nullptr;
 
-static bool enabled = true;
+
 
 void InitLog() {
-    if (logFile || !enabled) return; // Already open or disabled
+    if (logFile || !debugMode) return; // Already open or disabled
 
     char dllPath[MAX_PATH];
     if (GetModuleFileNameA((HMODULE)&__ImageBase, dllPath, MAX_PATH)) {
@@ -32,14 +33,14 @@ void InitLog() {
 
 
 void CloseLog() {
-    if (logFile && enabled) {
+    if (logFile && debugMode) {
         fclose(logFile);
         logFile = nullptr;
     }
 }
 
 void Log(const char* format, ...) {
-    if (!logFile || !enabled) return;
+    if (!logFile || !debugMode) return;
 
     va_list args;
     va_start(args, format);

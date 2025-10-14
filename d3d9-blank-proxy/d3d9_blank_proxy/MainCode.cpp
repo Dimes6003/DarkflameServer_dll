@@ -26,6 +26,8 @@ static std::string lwoServerPath;
 
 static std::string startMaximized;
 
+bool debugMode = false;
+
 
 // Declare original function pointer type
 typedef BOOL(WINAPI* pGetOpenFileNameW)(LPOPENFILENAMEW);
@@ -88,7 +90,15 @@ void ReadIni(HMODULE hModule)
             key.erase(std::remove_if(key.begin(), key.end(), isspace), key.end());
             value.erase(std::remove_if(value.begin(), value.end(), isspace), value.end());
 
-            if (key == "lwoServerPath") lwoServerPath = value;
+            if (key == "lwoServerPath") {
+                lwoServerPath = value;
+            }
+            else if (key == "debugMode") {
+                std::transform(value.begin(), value.end(), value.begin(), ::tolower);
+                debugMode = (value == "1" || value == "true");
+            }
+
+
         }
     }
 }
@@ -97,7 +107,7 @@ void ReadIni(HMODULE hModule)
 void RunServers(HMODULE hModule) {
     Log("Running RunServers()");
 
-    ReadIni(hModule);
+    // ReadIni(hModule);
 
     // Is this an absolute path
     auto isAbsolutePath = [](const std::string& path) -> bool {
@@ -152,14 +162,23 @@ void RunServers(HMODULE hModule) {
         std::vector<char> cmdLine(cmdLineStr.begin(), cmdLineStr.end());
         cmdLine.push_back('\0');
 
+        DWORD creationFlags = debugMode ? 0 : CREATE_NO_WINDOW;
+
+        if (debugMode) {
+            Log("Launching lwoServer with visible window");
+        }
+
         BOOL result = CreateProcessA(
             NULL,                  // Application name (NULL when included in command line)
             cmdLine.data(),        // Command line
             NULL, NULL, FALSE,     // Process/thread security and inherit handles
-            CREATE_NO_WINDOW,                     // No special flags (window will be visible)
+            creationFlags,         // Creation flags based on debugMode
             NULL, NULL,            // Environment and current directory
             &si, &pi               // Startup and process info
         );
+
+
+
 
         if (!result) {
             Log("Failed to launch: %s (Error %lu)", cmdLineStr.c_str(), GetLastError());

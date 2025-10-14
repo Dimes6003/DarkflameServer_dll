@@ -53,6 +53,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     {
     case DLL_PROCESS_ATTACH:
     {
+        ReadIni(hModule);
 
         InitLog();                            // Initialize logging
         Log("Proxy DLL loaded");
