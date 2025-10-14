@@ -55,4 +55,4 @@ in order to work with LEGO Universe
   **minhook**   
   
   Source: https://github.com/TsudaKageyu/minhook   
-  Liscense: https://github.com/Dimes6003/DarkflameServer_dll/blob/main/minhook/LICENSE.txt
+  License: https://github.com/Dimes6003/DarkflameServer_dll/blob/main/minhook/LICENSE.txt
