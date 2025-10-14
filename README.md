@@ -12,22 +12,22 @@
 
   **Be sure** you created at least one account on your server before installing
   
-  1. Download latest release here: 
+1. Download latest release here: 
   [Releases](https://github.com/Dimes6003/DarkflameServer_dll/releases)
   
   
-  2. Extract the release you downloaded into your LEGO Universe client, You should see these files in your client:
+2. Extract the release you downloaded into your LEGO Universe client, You should see these files in your client:
   
-  	> d3d9.dll
-  	> legouniverse.exe
-  	> server.ini
+	> ```diff
+	> msvc
+	> macos
+	> gnu-release
   
-  
-  3. Open `server.ini` and add the directory to your MasterServer.exe to `lwoServerPath = ` like so:
+3. Open `server.ini` and add the directory to your MasterServer.exe to `lwoServerPath = ` like so:
      
   	> lwoServerPath = C:/path/to/MasterServer.exe
   
-  5. Run `legouniverse.exe` enjoy :)
+5. Run `legouniverse.exe` enjoy :)
   
   **DO NOT** run multiple instances of `legouniverse.exe` when using the dll,   
   it's the same as running DLU multiple times and can cause issues
