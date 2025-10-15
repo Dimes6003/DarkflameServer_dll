@@ -19,9 +19,9 @@
 2. Extract the release you downloaded into your LEGO Universe client, You should see these files in your client:
   
 	> ```diff
-	> msvc
-	> macos
-	> gnu-release
+	> d3d9.dll
+	> legouniverse.exe
+	> server.ini
   
 3. Open `server.ini` and add the directory to your MasterServer.exe to `lwoServerPath = ` like so:
      
