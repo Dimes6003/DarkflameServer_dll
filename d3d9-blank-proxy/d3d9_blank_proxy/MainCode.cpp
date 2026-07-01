@@ -93,7 +93,7 @@ void ReadIni(HMODULE hModule)
 
             if (key == "enabled") {
                 std::transform(value.begin(), value.end(), value.begin(), ::tolower);
-                debugMode = (value == "1" || value == "true");
+                enabled = (value == "1" || value == "true");
             }
             else if (key == "lwoServerPath") {
                 lwoServerPath = value;
