@@ -55,6 +55,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     {
         ReadIni(hModule);
 
+        if (!enabled) ExitProcess(0);
+
         InitLog();                            // Initialize logging
         Log("Proxy DLL loaded");
 

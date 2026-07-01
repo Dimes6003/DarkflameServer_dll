@@ -26,6 +26,7 @@ static std::string lwoServerPath;
 
 static std::string startMaximized;
 
+bool enabled = false;
 bool debugMode = false;
 
 
@@ -90,7 +91,11 @@ void ReadIni(HMODULE hModule)
             key.erase(std::remove_if(key.begin(), key.end(), isspace), key.end());
             value.erase(std::remove_if(value.begin(), value.end(), isspace), value.end());
 
-            if (key == "lwoServerPath") {
+            if (key == "enabled") {
+                std::transform(value.begin(), value.end(), value.begin(), ::tolower);
+                debugMode = (value == "1" || value == "true");
+            }
+            else if (key == "lwoServerPath") {
                 lwoServerPath = value;
             }
             else if (key == "debugMode") {
