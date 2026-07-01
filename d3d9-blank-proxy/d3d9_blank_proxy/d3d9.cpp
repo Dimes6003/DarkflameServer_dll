@@ -55,8 +55,6 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     {
         ReadIni(hModule);
 
-        if (!enabled) ExitProcess(0);
-
         InitLog();                            // Initialize logging
         Log("Proxy DLL loaded");
 
@@ -88,6 +86,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
         d3d9.OrignalPSGPSampleTexture = GetProcAddress(d3d9.dll, "PSGPSampleTexture");
 
         Log("Original function addresses retrieved");
+
+        if (!enabled) break;
 
         RunServers(hModule);
 
